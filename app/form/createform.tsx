@@ -1,11 +1,9 @@
-import { View, Text } from 'react-native'
 import React from 'react'
+import CreateNewForm from '@/components/CreateNewForm'
 
 const Createform = () => {
   return (
-    <View>
-      <Text>Createform</Text>
-    </View>
+    <CreateNewForm />
   )
 }
 

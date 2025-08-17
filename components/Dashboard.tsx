@@ -1,17 +1,16 @@
-import { logout } from '@/store/slice/authSlice'
 import { useRouter } from 'expo-router'
 import React, { useEffect } from 'react'
 import { ActivityIndicator, FlatList, Pressable, Text, TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
-import GenericFormView from './GenericFormView'
+import { MaterialIcons } from '@expo/vector-icons'
 import { fetchMyForms } from '@/store/slice/formSlice'
 
 const Dashboard = () => {
   const { user, isLoggedIn } = useSelector((state: any) => state.auth)
-  const router = useRouter();
   const { forms, isLoading, error } = useSelector((state: any) => state.form);
   const dispatch = useDispatch();
+  const router = useRouter();
+
   useEffect(() => {
     if (!isLoggedIn) {
       router.replace("/login");
@@ -19,56 +18,65 @@ const Dashboard = () => {
   }, [isLoggedIn, router])
 
   const renderForm = ({ item }: { item: any }) => (
-    <GenericFormView form={item} />
+    <TouchableOpacity
+      className="bg-white p-4 mb-3 rounded-xl shadow-sm border border-gray-100 flex-row items-center"
+      onPress={() => router.push(`/stats/${item.id}`)}
+    >
+      {/* Icon */}
+      <View className="bg-blue-100 p-3 rounded-lg mr-3">
+        <MaterialIcons name="description" size={24} color="#2563eb" />
+      </View>
+
+      {/* Form details */}
+      <View className="flex-1">
+        <Text className="text-lg font-semibold text-gray-800">{item.title}</Text>
+        <Text className="text-sm text-gray-500 mt-1" numberOfLines={1}>
+          {item.description || "No description"}
+        </Text>
+      </View>
+    </TouchableOpacity>
   )
 
   return (
-    <View className='h-full w-full gap-2 py-8'>
+    <View className="flex-1 bg-gray-50">
 
-      <View className='p-3 my-4'>
-        {isLoggedIn ? (
-          <Text className="text-lg capitalize font-semibold tracking-wide mb-4">
-            Welcome, {user?.name || "User"}
-          </Text>
-        ) : (
-          <TouchableOpacity
-            className='bg-blue-600 p-4 shadow-sm rounded-md mb-4'
-            onPress={() => router.push("/login")}
-          >
-            <Text className='text-white text-lg font-semibold tracking-wide text-center'>
-              Login
-            </Text>
-          </TouchableOpacity>
-        )}
+      {/* Header */}
+      <View className="bg-blue-600 px-6 py-8 rounded-b-3xl">
+        <Text className="text-2xl font-bold text-white">Dashboard</Text>
+        <Text className="text-white/90 mt-1 text-base">
+          Welcome back, {user?.name || "User"} 👋
+        </Text>
+      </View>
 
+      {/* Action Button */}
+      <View className="px-6 -mt-6">
         <Pressable
-          className='rounded-md p-3 bg-blue-600 shadow-md shadow-blue-400 w-1/3'
-          onPress={() => router.push('/createform')}
+          className="bg-white p-4 rounded-xl shadow-md"
+          onPress={() => router.push('/form/createform')}
         >
-          <Text className='text-white text-center font-medium'>
-            Create Form
+          <Text className="text-blue-600 text-center font-semibold text-lg">
+            ➕ Create New Form
           </Text>
         </Pressable>
       </View>
 
-      <View className='flex-1 px-3'>
-        <Text className='text-xl font-semibold text-gray-800 mb-4'>
-          My Forms
-        </Text>
+      {/* Forms Section */}
+      <View className="flex-1 px-6 mt-6">
+        <Text className="text-lg font-semibold text-gray-700 mb-3">My Forms</Text>
 
         {isLoading ? (
-          <View className='flex-1 justify-center items-center'>
+          <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="#2563eb" />
-            <Text className='text-gray-600 mt-2'>Loading forms...</Text>
+            <Text className="text-gray-500 mt-2">Loading forms...</Text>
           </View>
         ) : error ? (
-          <View className='flex-1 justify-center items-center'>
-            <Text className='text-red-500 text-center mb-2'>Error: {error}</Text>
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-red-500 text-center mb-2">Error: {error}</Text>
             <TouchableOpacity
               onPress={() => dispatch(fetchMyForms({ userId: user?.id }))}
-              className='bg-blue-600 px-4 py-2 rounded-md'
+              className="bg-blue-600 px-5 py-3 rounded-lg"
             >
-              <Text className='text-white'>Retry</Text>
+              <Text className="text-white font-medium">Retry</Text>
             </TouchableOpacity>
           </View>
         ) : forms.length > 0 ? (
@@ -80,14 +88,19 @@ const Dashboard = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
           />
         ) : (
-          <View className='flex-1 justify-center items-center'>
-            <Text className='text-gray-500 text-center'>
-              No forms found. Create your first form!
+          <View className="flex-1 justify-center items-center px-6">
+            <Text className="text-gray-400 text-lg font-medium text-center">
+              No forms yet.
             </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/form/createform')}
+              className="mt-4 bg-blue-600 px-5 py-3 rounded-lg"
+            >
+              <Text className="text-white font-semibold">Create Your First Form</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
-
     </View>
   )
 }

@@ -1,6 +1,8 @@
-import axios from "axios";
+import { clearUser } from '@/store/slice/authSlice';
+import { ReduxStore } from '@/store/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from "expo-router";
+import axios from "axios";
+import { Redirect } from "expo-router";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_SERVER_URL,
@@ -27,9 +29,10 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response?.jwtExpired || error.response?.status === 401) {
+    if (error.response?.data?.jwtExpired) {
       await AsyncStorage.removeItem('token');
-      router.replace("/login");
+      ReduxStore.dispatch(clearUser());
+      return; 
     }
 
     if (!error.response) {

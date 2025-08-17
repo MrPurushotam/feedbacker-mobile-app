@@ -144,7 +144,7 @@ const LoginComponent = () => {
 
                 <View className='mt-8 items-center py-3'>
                     <Text className="text-gray-600 text-lg">
-                        Don't have an account?{' '}
+                        Don&apos;t have an account?{' '}
                         <Link href={"/create"} className="underline text-blue-600 font-semibold">Sign up</Link>
                     </Text>
                 </View>

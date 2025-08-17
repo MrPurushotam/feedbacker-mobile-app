@@ -1,11 +1,11 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native'
-import React, { useState } from 'react'
-import { formType } from '@/types/formTypes'
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useDispatch } from 'react-redux';
 import { deleteForm } from '@/store/slice/formSlice';
+import { formType } from '@/types/formTypes';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface DropdownOption {
   id: string;
@@ -14,14 +14,26 @@ interface DropdownOption {
   action: () => void;
 }
 
-const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, showDropDownMenu?: boolean }) => {
+type Props = {
+  form: formType;
+  showDropDownMenu?: boolean;
+  onPress?: (form: formType) => void;
+  onView?: (form: formType) => void;
+  onStats?: (form: formType) => void;
+  onShare?: (form: formType) => void;
+  onEdit?: (form: formType) => void;
+};
+
+
+const GenericFormView = ({ form, showDropDownMenu = false, onPress, onView, onStats, onShare, onEdit }: Props) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const router = useRouter();
   const dispatch = useDispatch();
+  const router = useRouter();
+  const { genericLoading } = useSelector((state: any) => state.form);
 
   const handleFormPress = () => {
-    console.log(`/track/${form.id}`);
-    router.push(`/track/${form.id}`);
+    if (showDropDownMenu) return;
+    router.push(`/stats/${form.id}`);
   };
 
   const handleShare = () => {
@@ -49,13 +61,18 @@ const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, sho
     );
   };
 
+  const handleEditForm = () => {
+    onEdit?.(form);
+    setShowDropdown(false);
+  }
+
   const handleView = () => {
-    // router.push(`/track/${form.id}`);
+    onView?.(form);
     setShowDropdown(false);
   };
 
   const handleStats = () => {
-    router.push(`/track/${form.id}`);
+    onStats?.(form);
     setShowDropdown(false);
   };
 
@@ -63,6 +80,7 @@ const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, sho
     { id: 'view', label: 'View', icon: 'eye-outline', action: handleView },
     { id: 'share', label: 'Share', icon: 'share-outline', action: handleShare },
     { id: 'stats', label: 'Stats', icon: 'stats-chart-outline', action: handleStats },
+    { id: 'edit', label: 'Edit', icon: 'create-outline', action: handleEditForm },
     { id: 'delete', label: 'Delete', icon: 'trash-outline', action: handleDelete },
   ];
 
@@ -71,11 +89,12 @@ const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, sho
       <TouchableOpacity
         onPress={handleFormPress}
         className='w-full px-4 py-4 bg-white rounded-lg shadow-sm border border-gray-100 flex-row items-center'
-        activeOpacity={0.7}
+
       >
-        <View className='w-12 h-12 bg-purple-500 rounded-lg items-center justify-center mr-3'>
-          <Icon name="wpforms" size={20} color="#fff" />
+        <View className="bg-blue-100 p-3 rounded-lg mr-3">
+          <MaterialIcons name="description" size={24} color="#2563eb" />
         </View>
+
 
         <View className='flex-1 flex-col justify-center'>
           <Text
@@ -98,7 +117,7 @@ const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, sho
             className='w-8 h-8 items-center justify-center ml-2'
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons   
+            <Ionicons
               name="ellipsis-vertical"
               size={20}
               color="#6b7280"
@@ -116,24 +135,28 @@ const GenericFormView = ({ form, showDropDownMenu=false }: { form: formType, sho
           />
 
           <View className='absolute top-16 right-4 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 min-w-[120px]'>
-            {dropdownOptions.map((option, index) => (
+            {dropdownOptions.map((option) => (
               <TouchableOpacity
                 key={option.id}
                 onPress={option.action}
                 className={`flex-row items-center px-4 py-3 ${option.id === 'delete' ? 'border-t border-gray-100' : ''
                   }`}
-                activeOpacity={0.7}
+                disabled={option.id === 'delete' && genericLoading}
               >
-                <Ionicons
-                  name={option.icon as any}
-                  size={16}
-                  color={option.id === 'delete' ? '#ef4444' : '#6b7280'}
-                />
+                {option.id === 'delete' && genericLoading ? (
+                  <Ionicons name="refresh" size={16} color="#ef4444" style={{ marginRight: 12 }} />
+                ) : (
+                  <Ionicons
+                    name={option.icon as any}
+                    size={16}
+                    color={option.id === 'delete' ? '#ef4444' : '#6b7280'}
+                  />
+                )}
                 <Text
                   className={`ml-3 text-sm ${option.id === 'delete' ? 'text-red-500' : 'text-gray-700'
                     }`}
                 >
-                  {option.label}
+                  {option.id === 'delete' && genericLoading ? 'Deleting...' : option.label}
                 </Text>
               </TouchableOpacity>
             ))}

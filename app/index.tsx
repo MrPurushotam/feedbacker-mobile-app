@@ -2,21 +2,13 @@ import { Text, View, ActivityIndicator } from "react-native";
 import "./global.css"
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { initializeAuth } from "@/store/slice/authSlice";
 
 export default function Index() {
   const router = useRouter();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    // @ts-ignore
-    dispatch(initializeAuth());
-  }, [dispatch])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push("/login");
+      router.replace("/login");
     }, 1500);
 
     return () => clearTimeout(timer);

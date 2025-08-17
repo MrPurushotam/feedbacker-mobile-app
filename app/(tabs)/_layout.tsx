@@ -38,15 +38,15 @@ export default function ScreenTabLayout() {
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="track"
+            {/* <Tabs.Screen
+                name="stats"
                 options={{
                     title: "Stats",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="stats-chart-outline" color={color} size={size} />
                     ),
                 }}
-            />
+            /> */}
             <Tabs.Screen
                 name={isLoggedIn ? "userProfile" : "login"}
                 options={{
